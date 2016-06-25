@@ -63,6 +63,7 @@ public class KafkaSourceEmbeddedZookeeper {
     zookeeper.shutdown();
     factory.shutdown();
     FileUtils.deleteDirectory(dir);
+
   }
 
   public String getConnectString() {

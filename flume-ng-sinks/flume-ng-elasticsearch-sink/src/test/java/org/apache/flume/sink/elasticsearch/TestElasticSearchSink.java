@@ -32,9 +32,11 @@ import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.time.FastDateFormat;
 
 import org.apache.flume.Channel;
@@ -48,9 +50,8 @@ import org.apache.flume.conf.Configurables;
 import org.apache.flume.event.EventBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Requests;
-import org.elasticsearch.common.UUID;
 import org.elasticsearch.common.io.BytesStream;
-import org.elasticsearch.common.io.FastByteArrayOutputStream;
+import org.elasticsearch.common.io.stream.BytesStreamOutput;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.After;
 import org.junit.Before;
@@ -118,13 +119,13 @@ public class TestElasticSearchSink extends AbstractElasticSearchSinkTest {
 
     assertMatchAllQuery(3);
     assertSearch(1,
-        performSearch(QueryBuilders.fieldQuery("@message", "TEST1")),
+        performSearch(QueryBuilders.matchQuery("@message", "TEST1")),
         null, event1);
     assertSearch(1,
-        performSearch(QueryBuilders.fieldQuery("@message", "TEST2")),
+        performSearch(QueryBuilders.matchQuery("@message", "TEST2")),
         null, event2);
     assertSearch(1,
-        performSearch(QueryBuilders.fieldQuery("@message", "TEST3")),
+        performSearch(QueryBuilders.matchQuery("@message", "TEST3")),
         null, event3);
   }
 
@@ -146,14 +147,14 @@ public class TestElasticSearchSink extends AbstractElasticSearchSinkTest {
     client.admin().indices()
             .refresh(Requests.refreshRequest(timestampedIndexName)).actionGet();
 
-    Map<String, Object> expectedBody = new HashMap<String, Object>();
+    Map<String, Object> expectedBody = Maps.newHashMap();
     expectedBody.put("event", "json content");
     expectedBody.put("num", 1);
 
     assertSearch(1,
         performSearch(QueryBuilders.matchAllQuery()), expectedBody, event);
     assertSearch(1,
-        performSearch(QueryBuilders.fieldQuery("@message.event", "json")),
+        performSearch(QueryBuilders.matchQuery("@message.event", "json")),
         expectedBody, event);
   }
 
@@ -341,7 +342,7 @@ public class TestElasticSearchSink extends AbstractElasticSearchSinkTest {
 
   @Test
   public void shouldParseFullyQualifiedTTLs() {
-    Map<String, Long> testTTLMap = new HashMap<String, Long>();
+    Map<String, Long> testTTLMap = Maps.newHashMap();
     testTTLMap.put("1ms", Long.valueOf(1));
     testTTLMap.put("1s", Long.valueOf(1000));
     testTTLMap.put("1m", Long.valueOf(60000));
@@ -462,7 +463,7 @@ class FakeEventSerializer implements ElasticSearchEventSerializer {
 
   @Override
   public BytesStream getContentBuilder(Event event) throws IOException {
-    FastByteArrayOutputStream fbaos = new FastByteArrayOutputStream(4);
+    BytesStreamOutput fbaos = new BytesStreamOutput(4);
     fbaos.write(FAKE_BYTES);
     return fbaos;
   }

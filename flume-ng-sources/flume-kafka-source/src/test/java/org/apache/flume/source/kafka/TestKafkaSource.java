@@ -104,13 +104,11 @@ public class TestKafkaSource {
     context.put(BATCH_SIZE, "3");
     kafkaSource.configure(context);
     kafkaSource.start();
-    Thread.sleep(500L);
     Status status = kafkaSource.process();
     assertEquals(Status.BACKOFF, status);
     assertEquals(0, events.size());
     kafkaServer.produce(topic1, "", "record1");
     kafkaServer.produce(topic1, "", "record2");
-    Thread.sleep(500L);
     status = kafkaSource.process();
     assertEquals(Status.READY, status);
     assertEquals(2, events.size());
@@ -118,7 +116,6 @@ public class TestKafkaSource {
     kafkaServer.produce(topic1, "", "record3");
     kafkaServer.produce(topic1, "", "record4");
     kafkaServer.produce(topic1, "", "record5");
-    Thread.sleep(500L);
     assertEquals(Status.READY, kafkaSource.process());
     assertEquals(3, events.size());
     assertEquals("record3", new String(events.get(0).getBody(), Charsets.UTF_8));
@@ -130,7 +127,6 @@ public class TestKafkaSource {
     kafkaServer.produce(topic1, "", "record8");
     kafkaServer.produce(topic1, "", "record9");
     kafkaServer.produce(topic1, "", "record10");
-    Thread.sleep(500L);
     assertEquals(Status.READY, kafkaSource.process());
     assertEquals(3, events.size());
     assertEquals("record6", new String(events.get(0).getBody(), Charsets.UTF_8));
@@ -155,7 +151,6 @@ public class TestKafkaSource {
     kafkaSource.configure(context);
     kafkaSource.start();
     kafkaServer.produce(topic1, "", "record14");
-    Thread.sleep(1000L);
     assertEquals(Status.READY, kafkaSource.process());
     assertEquals(3, events.size());
     assertEquals("record12", new String(events.get(0).getBody(), Charsets.UTF_8));
@@ -174,11 +169,8 @@ public class TestKafkaSource {
     kafkaSource.configure(context);
     kafkaSource.start();
 
-    Thread.sleep(500L);
-
     kafkaServer.produce(topic0, "", "hello, world");
 
-    Thread.sleep(500L);
     Assert.assertEquals(Status.READY, kafkaSource.process());
     Assert.assertEquals(Status.BACKOFF, kafkaSource.process());
     Assert.assertEquals(1, events.size());
@@ -197,12 +189,8 @@ public class TestKafkaSource {
     kafkaSource.configure(context);
     kafkaSource.start();
 
-    Thread.sleep(500L);
-
     kafkaServer.produce(topic0, "", "hello, world");
     kafkaServer.produce(topic0, "", "foo, bar");
-
-    Thread.sleep(500L);
 
     Status status = kafkaSource.process();
     assertEquals(Status.READY, status);
@@ -222,7 +210,6 @@ public class TestKafkaSource {
     context.put(TOPICS, topic0);
     kafkaSource.configure(context);
     kafkaSource.start();
-    Thread.sleep(500L);
 
     Status status = kafkaSource.process();
     assertEquals(Status.BACKOFF, status);
@@ -236,7 +223,6 @@ public class TestKafkaSource {
     context.put(TOPICS,"faketopic");
     kafkaSource.configure(context);
     kafkaSource.start();
-    Thread.sleep(500L);
 
     Status status = kafkaSource.process();
     assertEquals(Status.BACKOFF, status);
@@ -251,7 +237,6 @@ public class TestKafkaSource {
     context.put(BOOTSTRAP_SERVERS,"blabla:666");
     kafkaSource.configure(context);
     kafkaSource.start();
-    Thread.sleep(500L);
 
     Status status = kafkaSource.process();
     assertEquals(Status.BACKOFF, status);
@@ -265,12 +250,9 @@ public class TestKafkaSource {
     kafkaSource.configure(context);
     kafkaSource.start();
 
-    Thread.sleep(500L);
-
     for (int i=1; i<5000; i++) {
       kafkaServer.produce(topic0, "", "hello, world " + i);
     }
-    Thread.sleep(500L);
 
     long error = 50;
     long startTime = System.currentTimeMillis();
@@ -290,17 +272,11 @@ public class TestKafkaSource {
     kafkaSource.configure(context);
     kafkaSource.start();
 
-    Thread.sleep(500L);
-
     kafkaServer.produce(topic0, "", "hello, world");
-
-    Thread.sleep(500L);
 
     Assert.assertEquals(Status.READY, kafkaSource.process());
     kafkaSource.stop();
-    Thread.sleep(500L);
     kafkaSource.start();
-    Thread.sleep(500L);
     Assert.assertEquals(Status.BACKOFF, kafkaSource.process());
 
   }
@@ -314,10 +290,8 @@ public class TestKafkaSource {
     context.put(BATCH_DURATION_MS,"30000");
     kafkaSource.configure(context);
     kafkaSource.start();
-    Thread.sleep(500L);
 
     kafkaServer.produce(topic0, "", "hello, world");
-    Thread.sleep(500L);
 
     kafkaSource.setChannelProcessor(createBadChannel());
     log.debug("processing from kafka to bad channel");
@@ -330,8 +304,6 @@ public class TestKafkaSource {
     kafkaSource.process();
     Assert.assertEquals("hello, world", new String(events.get(0).getBody(),
             Charsets.UTF_8));
-
-
   }
 
   @Test
@@ -342,10 +314,8 @@ public class TestKafkaSource {
     context.put(BATCH_DURATION_MS, "30000");
     kafkaSource.configure(context);
     kafkaSource.start();
-    Thread.sleep(500L);
 
     kafkaServer.produce(topic0, "", "event 1");
-    Thread.sleep(500L);
 
     kafkaSource.process();
     Assert.assertEquals("event 1", new String(events.get(0).getBody(),
@@ -353,7 +323,6 @@ public class TestKafkaSource {
     events.clear();
 
     kafkaServer.produce(topic0, "", "event 2");
-    Thread.sleep(500L);
     kafkaSource.process();
     Assert.assertEquals("event 2", new String(events.get(0).getBody(),
             Charsets.UTF_8));
@@ -368,10 +337,8 @@ public class TestKafkaSource {
     context.put(KAFKA_CONSUMER_PREFIX + "enable.auto.commit", "true");
     kafkaSource.configure(context);
     kafkaSource.start();
-    Thread.sleep(500L);
 
     kafkaServer.produce(topic0, "", "event 1");
-    Thread.sleep(500L);
 
     kafkaSource.process();
     Assert.assertEquals("event 1", new String(events.get(0).getBody(),
@@ -379,11 +346,9 @@ public class TestKafkaSource {
     events.clear();
 
     kafkaServer.produce(topic0, "", "event 2");
-    Thread.sleep(500L);
     kafkaSource.process();
     Assert.assertEquals("event 2", new String(events.get(0).getBody(),
             Charsets.UTF_8));
-
   }
 
   @SuppressWarnings("unchecked")
@@ -396,11 +361,7 @@ public class TestKafkaSource {
     kafkaSource.configure(context);
     kafkaSource.start();
 
-    Thread.sleep(500L);
-
     kafkaServer.produce(topic0, null, "hello, world");
-
-    Thread.sleep(500L);
 
     Assert.assertEquals(Status.READY, kafkaSource.process());
     Assert.assertEquals(Status.BACKOFF, kafkaSource.process());
@@ -527,8 +488,6 @@ public class TestKafkaSource {
     kafkaSource.configure(context);
     kafkaSource.start();
 
-    Thread.sleep(500L);
-
     tempOutStream = new ByteArrayOutputStream();
     writer = new SpecificDatumWriter<AvroFlumeEvent>(AvroFlumeEvent.class);
 
@@ -559,7 +518,6 @@ public class TestKafkaSource {
 
     kafkaServer.produce(topic0, "", bytes);
 
-    Thread.sleep(500L);
     Assert.assertEquals(Status.READY, kafkaSource.process());
     Assert.assertEquals(Status.READY, kafkaSource.process());
     Assert.assertEquals(Status.BACKOFF, kafkaSource.process());
@@ -585,7 +543,6 @@ public class TestKafkaSource {
     Assert.assertEquals(currentTimestamp, e.getHeaders().get(TIMESTAMP_HEADER));
     Assert.assertEquals(e.getHeaders().get(PARTITION_HEADER), "1");
     Assert.assertEquals(e.getHeaders().get(TOPIC_HEADER),"topic0");
-
   }
 
   ChannelProcessor createGoodChannel() {
@@ -603,7 +560,6 @@ public class TestKafkaSource {
     }).when(channelProcessor).processEventBatch(any(List.class));
 
     return channelProcessor;
-
   }
 
   ChannelProcessor createBadChannel() {

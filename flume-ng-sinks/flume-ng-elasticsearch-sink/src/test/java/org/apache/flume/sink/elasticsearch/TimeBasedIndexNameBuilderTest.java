@@ -18,13 +18,13 @@
  */
 package org.apache.flume.sink.elasticsearch;
 
+import com.google.common.collect.Maps;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.event.SimpleEvent;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -51,7 +51,7 @@ public class TimeBasedIndexNameBuilderTest {
   public void indexNameShouldBePrefixDashFormattedTimestamp() {
     long time = 987654321L;
     Event event = new SimpleEvent();
-    Map<String, String> headers = new HashMap<String, String>();
+    Map<String, String> headers = Maps.newHashMap();
     headers.put("timestamp", Long.toString(time));
     event.setHeaders(headers);
     assertEquals("prefix-" + indexNameBuilder.getFastDateFormat().format(time),

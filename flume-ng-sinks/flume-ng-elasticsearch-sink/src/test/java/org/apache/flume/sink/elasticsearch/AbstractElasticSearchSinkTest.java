@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -36,15 +37,12 @@ import org.apache.flume.channel.MemoryChannel;
 import org.apache.flume.conf.Configurables;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.collect.Maps;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.gateway.Gateway;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
-import org.elasticsearch.node.internal.InternalNode;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.joda.time.DateTimeUtils;
@@ -76,13 +74,11 @@ public abstract class AbstractElasticSearchSinkTest {
   }
 
   void createNodes() throws Exception {
-    Settings settings = ImmutableSettings
+    Settings settings = Settings
         .settingsBuilder()
         .put("number_of_shards", 1)
         .put("number_of_replicas", 0)
-        .put("routing.hash.type", "simple")
-        .put("gateway.type", "none")
-        .put("path.data", "target/es-test")
+        .put("path.home", "target/es-test")
         .build();
 
     node = NodeBuilder.nodeBuilder().settings(settings).local(true).node();
@@ -93,7 +89,7 @@ public abstract class AbstractElasticSearchSinkTest {
   }
 
   void shutdownNodes() throws Exception {
-    ((InternalNode) node).injector().getInstance(Gateway.class).reset();
+    node.injector().getInstance(Gateway.class).reset();
     client.close();
     node.close();
   }
@@ -127,7 +123,7 @@ public abstract class AbstractElasticSearchSinkTest {
   void assertBodyQuery(int expectedHits, Event... events) {
     // Perform Multi Field Match
     assertSearch(expectedHits,
-        performSearch(QueryBuilders.fieldQuery("@message", "event")),
+        performSearch(QueryBuilders.matchQuery("@message", "event")),
         null, events);
   }
 

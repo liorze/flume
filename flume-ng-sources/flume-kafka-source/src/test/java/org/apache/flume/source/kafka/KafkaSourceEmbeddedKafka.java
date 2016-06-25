@@ -37,15 +37,7 @@ import java.util.concurrent.ExecutionException;
 
 public class KafkaSourceEmbeddedKafka {
 
-  public static String HOST;
-
-  static {
-    try {
-      HOST = InetAddress.getLocalHost().getHostAddress();
-    } catch (UnknownHostException e) {
-      throw new RuntimeException("Host address can not be obtained", e);
-    }
-  }
+  public static String HOST = InetAddress.getLoopbackAddress().getHostName();
 
   KafkaServerStartable kafkaServer;
   KafkaSourceEmbeddedZookeeper zookeeper;
