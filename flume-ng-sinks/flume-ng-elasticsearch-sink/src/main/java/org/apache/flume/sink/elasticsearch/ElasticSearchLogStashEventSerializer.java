@@ -21,15 +21,14 @@ package org.apache.flume.sink.elasticsearch;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.conf.ComponentConfiguration;
-import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 /**
@@ -82,14 +81,14 @@ public class ElasticSearchLogStashEventSerializer implements
   }
 
   private void appendBody(XContentBuilder builder, Event event)
-      throws IOException, UnsupportedEncodingException {
+      throws IOException {
     byte[] body = event.getBody();
     ContentBuilderUtil.appendField(builder, "@message", body);
   }
 
   private void appendHeaders(XContentBuilder builder, Event event)
       throws IOException {
-    Map<String, String> headers = Maps.newHashMap(event.getHeaders());
+    Map<String, String> headers = new HashMap<>(event.getHeaders());
 
     String timestamp = headers.get("timestamp");
     if (!StringUtils.isBlank(timestamp)

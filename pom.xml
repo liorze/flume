@@ -37,8 +37,8 @@ limitations under the License.
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Java compiler configuration -->
-    <sourceJavaVersion>1.7</sourceJavaVersion>
-    <targetJavaVersion>1.7</targetJavaVersion>
+    <sourceJavaVersion>1.8</sourceJavaVersion>
+    <targetJavaVersion>1.8</targetJavaVersion>
 
     <!-- defaults for flaky test and focused test exclusions -->
     <test.exclude.pattern>$</test.exclude.pattern> <!-- junk pattern -->
@@ -49,7 +49,7 @@ limitations under the License.
     <avro.version>1.7.4</avro.version>
     <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
     <checkstyle.tool.version>6.19</checkstyle.tool.version>
-    <elasticsearch.version>0.90.1</elasticsearch.version>
+    <elasticsearch.version>5.0.0-rc1</elasticsearch.version>
     <hadoop2.version>2.4.0</hadoop2.version>
     <thrift.version>0.7.0</thrift.version>
     <kafka.version>0.9.0.1</kafka.version>
@@ -1057,15 +1057,22 @@ limitations under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch</artifactId>
+        <groupId>org.elasticsearch.client</groupId>
+        <artifactId>transport</artifactId>
         <version>${elasticsearch.version}</version>
         <optional>true</optional>
       </dependency>
 
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch</artifactId>
+        <groupId>org.elasticsearch.client</groupId>
+        <artifactId>rest</artifactId>
+        <version>${elasticsearch.version}</version>
+        <optional>true</optional>
+      </dependency>
+
+      <dependency>
+        <groupId>org.elasticsearch.client</groupId>
+        <artifactId>transport</artifactId>
         <version>${elasticsearch.version}</version>
         <classifier>tests</classifier>
         <scope>test</scope>

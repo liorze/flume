@@ -24,26 +24,21 @@ import org.apache.flume.Event;
 import org.apache.flume.conf.ComponentConfiguration;
 import org.apache.flume.conf.sink.SinkConfiguration;
 import org.apache.flume.event.SimpleEvent;
+import org.elasticsearch.action.index.IndexAction;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.io.BytesStream;
-import org.elasticsearch.common.io.FastByteArrayOutputStream;
+import org.elasticsearch.common.io.stream.BytesStreamOutput;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TestElasticSearchIndexRequestBuilderFactory
     extends AbstractElasticSearchSinkTest {
-
-  private static final Client FAKE_CLIENT = null;
 
   private EventSerializerIndexRequestBuilderFactory factory;
 
@@ -51,11 +46,12 @@ public class TestElasticSearchIndexRequestBuilderFactory
 
   @Before
   public void setupFactory() throws Exception {
+    createNodes();
     serializer = new FakeEventSerializer();
     factory = new EventSerializerIndexRequestBuilderFactory(serializer) {
       @Override
       IndexRequestBuilder prepareIndex(Client client) {
-        return new IndexRequestBuilder(FAKE_CLIENT);
+        return new IndexRequestBuilder(client, IndexAction.INSTANCE);
       }
     };
   }
@@ -130,14 +126,14 @@ public class TestElasticSearchIndexRequestBuilderFactory
     Event event = new SimpleEvent();
 
     IndexRequestBuilder indexRequestBuilder = factory.createIndexRequest(
-        FAKE_CLIENT, indexPrefix, indexType, event);
+        client, indexPrefix, indexType, event);
 
     assertEquals(indexPrefix + '-'
         + ElasticSearchIndexRequestBuilderFactory.df.format(FIXED_TIME_MILLIS),
         indexRequestBuilder.request().index());
     assertEquals(indexType, indexRequestBuilder.request().type());
     assertArrayEquals(FakeEventSerializer.FAKE_BYTES,
-        indexRequestBuilder.request().source().array());
+        indexRequestBuilder.request().source().toBytesRef().bytes);
   }
 
   @Test
@@ -149,7 +145,7 @@ public class TestElasticSearchIndexRequestBuilderFactory
     event.getHeaders().put("timestamp", "1213141516");
 
     IndexRequestBuilder indexRequestBuilder = factory.createIndexRequest(
-        null, indexPrefix, indexType, event);
+        client, indexPrefix, indexType, event);
 
     assertEquals(indexPrefix + '-'
         + ElasticSearchIndexRequestBuilderFactory.df.format(1213141516L),
@@ -169,7 +165,7 @@ public class TestElasticSearchIndexRequestBuilderFactory
     event.getHeaders().put("index-type", typeValue);
 
     IndexRequestBuilder indexRequestBuilder = factory.createIndexRequest(
-        null, indexPrefix, indexType, event);
+        client, indexPrefix, indexType, event);
 
     assertEquals(indexValue + '-'
         + ElasticSearchIndexRequestBuilderFactory.df.format(FIXED_TIME_MILLIS),
@@ -196,7 +192,7 @@ public class TestElasticSearchIndexRequestBuilderFactory
 
     @Override
     public BytesStream getContentBuilder(Event event) throws IOException {
-      FastByteArrayOutputStream fbaos = new FastByteArrayOutputStream(4);
+      BytesStreamOutput fbaos = new BytesStreamOutput(4);
       fbaos.write(FAKE_BYTES);
       return fbaos;
     }

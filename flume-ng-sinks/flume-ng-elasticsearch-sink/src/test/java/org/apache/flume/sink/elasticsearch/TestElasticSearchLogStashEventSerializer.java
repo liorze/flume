@@ -22,11 +22,11 @@ import com.google.gson.JsonParser;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.event.EventBuilder;
-import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.flume.sink.elasticsearch.ElasticSearchEventSerializer.charset;
@@ -42,7 +42,7 @@ public class TestElasticSearchLogStashEventSerializer {
     fixture.configure(context);
 
     String message = "test body";
-    Map<String, String> headers = Maps.newHashMap();
+    Map<String, String> headers = new HashMap<>();
     long timestamp = System.currentTimeMillis();
     headers.put("timestamp", String.valueOf(timestamp));
     headers.put("source", "flume_tail_src");
@@ -87,7 +87,7 @@ public class TestElasticSearchLogStashEventSerializer {
     fixture.configure(context);
 
     String message = "{flume: somethingnotvalid}";
-    Map<String, String> headers = Maps.newHashMap();
+    Map<String, String> headers = new HashMap<>();
     long timestamp = System.currentTimeMillis();
     headers.put("timestamp", String.valueOf(timestamp));
     headers.put("source", "flume_tail_src");
