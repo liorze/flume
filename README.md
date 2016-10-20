@@ -61,7 +61,7 @@ Compiling Flume requires the following tools:
 Note: The Apache Flume build requires more memory than the default configuration.
 We recommend you set the following Maven options:
 
-`export MAVEN_OPTS="-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"`
+`export MAVEN_OPTS="-Xms512m -Xmx1024m"`
 
 To compile Flume and build a distribution tarball, run `mvn install` from the
 top level directory. The artifacts will be placed under `flume-ng-dist/target/`.
